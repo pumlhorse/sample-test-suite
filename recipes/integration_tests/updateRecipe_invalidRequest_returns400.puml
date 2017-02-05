@@ -1,0 +1,46 @@
+name: Update Recipe returns 400 for invalid requests
+modules:
+  - http = http
+  - recipeHelpers
+steps:
+  - apiKey = getApiKey
+  - scenarios:
+      base:
+        name: Test recipe name
+        description: A test recipe for a test suite
+        author: Automated Tests
+        rating: 1
+      cases:
+        missing name:
+          name: null
+          expectedError: Name is required
+        missing description:
+          description: null
+          expectedError: Description is required
+        missing author:
+          author: null
+          expectedError: Author is required
+        rating too low:
+          rating: 0
+          expectedError: Rating must be between 1 and 5
+        rating too high:
+          rating: 6
+          expectedError: Rating must be between 1 and 5
+      steps:
+        - result = http.put:
+            url: $recipeUrl/recipes/$_id()
+            data:
+              name: $name
+              description: $description
+              author: $author
+              rating: $rating
+            headers:
+              Authorization: $apiKey
+        - http.isBadRequest: $result
+        - body = http.body: $result
+        - areEqual:
+            expected: 1
+            actual: $body.length
+        - areEqual:
+            expected: $expectedError
+            actual: $body[0]

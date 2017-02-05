@@ -1,0 +1,13 @@
+name: List Recipes returns empty list
+modules:
+  - http = http
+  - recipeHelpers
+steps:
+  - apiKey = getApiKey
+  - result = http.get:
+      url: $recipeUrl/recipes
+      headers:
+          Authorization: $apiKey
+  - http.isOk: $result
+  - recipes = http.body: $result
+  - isEmpty: $recipes

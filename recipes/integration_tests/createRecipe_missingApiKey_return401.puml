@@ -1,0 +1,9 @@
+name: Create Recipe returns 401 for missing Authorization header
+modules:
+  - http = http
+steps:
+  - result = http.post:
+      url: $recipeUrl/recipes
+      data:
+        name: Test recipe
+  - http.isUnauthorized: $result

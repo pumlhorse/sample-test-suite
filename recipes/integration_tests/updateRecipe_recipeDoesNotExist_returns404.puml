@@ -1,0 +1,21 @@
+name: Update Recipe returns 404 for invalid recipe ID
+modules:
+  - http = http
+  - recipeHelpers
+steps:
+  - apiKey = getApiKey
+
+  # Add a new recipe
+  - result = http.put:
+      url: $recipeUrl/recipes/$_id()
+      data:
+          name: Test recipe
+          description: This is a test recipe for an automated test suite
+          author: Automated Test
+          rating: 3
+      headers:
+          Authorization: $apiKey
+  - http.isNotFound: $result
+  - areEqual:
+      expected: Recipe does not exist
+      actual: $result.body

@@ -1,0 +1,36 @@
+name: Create Recipe adds recipe
+modules:
+  - http = http
+  - recipeHelpers
+steps:
+  - apiKey = getApiKey
+
+  # Add a new recipe
+  - result = http.post:
+      url: $recipeUrl/recipes
+      data:
+          name: Test recipe
+          description: This is a test recipe for an automated test suite
+          author: Automated Test
+          rating: 3
+      headers:
+          Authorization: $apiKey
+  - http.isOk: $result
+  - body = http.body: $result
+  - newRecipeId = $body.id
+
+  # Get the recipe back
+  - result = http.get:
+      url: $recipeUrl/recipes/$newRecipeId
+      headers:
+          Authorization: $apiKey
+  - http.isOk: $result
+  - body = http.body: $result
+  - areEqual:
+      expected:
+        id: $newRecipeId
+        name: Test recipe
+        description: This is a test recipe for an automated test suite
+        author: Automated Test
+        rating: 3
+      actual: $body

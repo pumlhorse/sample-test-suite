@@ -1,0 +1,15 @@
+name: Get Recipe returns 404 for invalid recipe ID
+modules:
+  - http = http
+  - recipeHelpers
+steps:
+  - apiKey = getApiKey
+
+  - result = http.get:
+      url: $recipeUrl/recipes/$_id()
+      headers:
+          Authorization: $apiKey
+  - http.isNotFound: $result
+  - areEqual:
+      expected: Recipe does not exist
+      actual: $result.body

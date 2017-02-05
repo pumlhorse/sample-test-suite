@@ -1,0 +1,45 @@
+name: Delete Recipe deletes recipe
+modules:
+  - http = http
+  - recipeHelpers
+steps:
+  - apiKey = getApiKey
+
+  # Add a new recipe
+  - result = http.post:
+      url: $recipeUrl/recipes
+      data:
+        name: Test recipe
+        description: This is a test recipe for an automated test suite
+        author: Automated Test
+        rating: 3
+      headers:
+        Authorization: $apiKey
+  - http.isOk: $result
+  - body = http.body: $result
+  - newRecipeId = $body.id
+
+  # Verify we added one
+  - response = http.get:
+      url: $recipeUrl/recipes
+      headers:
+        Authorization: $apiKey
+  - http.isOk: $response
+  - recipes = http.body: $response
+  - isNotEmpty: $recipes
+
+  # Delete the recipe we just added
+  - result = http.delete:
+      url: $recipeUrl/recipes/$newRecipeId
+      headers:
+        Authorization: $apiKey
+  - areEqual:
+      expected: 204
+      actual: $result.statusCode
+
+  # Get the recipe back
+  - result = http.get:
+      url: $recipeUrl/recipes/$newRecipeId
+      headers:
+          Authorization: $apiKey
+  - http.isNotFound: $result

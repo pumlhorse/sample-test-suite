@@ -1,0 +1,9 @@
+name: Update Recipe returns 401 for missing Authorization header
+modules:
+  - http = http
+steps:
+  - result = http.put:
+      url: $recipeUrl/recipes/$_id()
+      data:
+        name: Test recipe
+  - http.isUnauthorized: $result

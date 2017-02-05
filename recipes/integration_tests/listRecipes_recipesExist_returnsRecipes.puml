@@ -1,0 +1,44 @@
+name: List Recipes returns list of recipes
+modules:
+  - http = http
+  - recipeHelpers
+steps:
+  - apiKey = getApiKey
+
+  # Add a bunch of recipes
+  - repeat:
+      times: 14
+      steps:
+        - result = http.post:
+            url: $recipeUrl/recipes
+            data:
+              name: Test recipe
+              description: This is a test recipe for an automated test suite
+              author: Automated Test
+              rating: 3
+            headers:
+              Authorization: $apiKey
+
+  # Get the recipes back
+  - result = http.get:
+      url: $recipeUrl/recipes
+      headers:
+          Authorization: $apiKey
+  - http.isOk: $result
+  - recipes = http.body: $result
+  - areEqual:
+      expected: 14
+      actual: $recipes.length
+  # Go through each recipe and make sure it's the same as what we added before
+  - for:
+      each: recipe
+      in: $recipes
+      steps:
+        - areEqual:
+            expected:
+              name: Test recipe
+              description: This is a test recipe for an automated test suite
+              author: Automated Test
+              rating: 3
+            actual: $recipe
+            partial: true

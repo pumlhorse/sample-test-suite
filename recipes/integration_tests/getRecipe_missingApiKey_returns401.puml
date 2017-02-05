@@ -1,0 +1,6 @@
+name: Get Recipe returns 401 for missing Authorization header
+modules:
+  - http = http
+steps:
+  - result = http.get: $recipeUrl/recipes/$_id()
+  - http.isUnauthorized: $result

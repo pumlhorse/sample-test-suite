@@ -1,0 +1,8 @@
+name: Dump Recipe cache
+modules:
+  - http = http
+steps:
+  # For debugging purposes, print out all the recipes in the system
+  - result = http.get: $recipeUrl/recipe_cache
+  - http.isOk: $result
+  - log: $result.body
